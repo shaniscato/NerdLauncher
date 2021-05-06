@@ -2,21 +2,23 @@ package com.bignerdranch.android.nerdlauncher
 
 import android.content.Intent
 import android.content.pm.ResolveInfo
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.text.LineBreaker
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 private const val TAG = "NerdLauncherActivity"
 
 //Displays a list of application names in a RecyclerView
 class NerdLauncherActivity : AppCompatActivity() {
-
+    val TAG = "NerdLauncherActivity"
     private lateinit var recyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,7 +26,7 @@ class NerdLauncherActivity : AppCompatActivity() {
         setContentView(R.layout.activity_nerd_launcher)
 
         recyclerView = findViewById(R.id.app_recycler_view)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = GridLayoutManager(this, 4)
 
         //creates adapter for RecyclerView
         setupAadapter()
@@ -41,8 +43,8 @@ class NerdLauncherActivity : AppCompatActivity() {
         //activity names
         activities.sortWith(Comparator { a, b ->
             String.CASE_INSENSITIVE_ORDER.compare(
-                a.loadLabel(packageManager).toString(),
-                b.loadLabel(packageManager).toString()
+                    a.loadLabel(packageManager).toString(),
+                    b.loadLabel(packageManager).toString()
             )
         })
         Log.i(TAG, "Found ${activities.size} activities")
@@ -56,13 +58,23 @@ class NerdLauncherActivity : AppCompatActivity() {
 
         init {
             nameTextView.setOnClickListener(this)
+
         }
 
         fun bindActivity(resolveInfo: ResolveInfo) {
             this.resolveInfo = resolveInfo
             val packageManager = itemView.context.packageManager
             val appName = resolveInfo.loadLabel(packageManager).toString()
+            val icon = resolveInfo.loadIcon(packageManager)
+            Log.d(TAG, "app name: $appName")
+            Log.d(TAG, "icon: $icon")
+
             nameTextView.text = appName
+            icon.setBounds(0,0,125,125)
+            nameTextView.setCompoundDrawables(null, icon, null, null)
+            nameTextView.setPadding(15,20,15, 80)
+            nameTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14F)
+            nameTextView.gravity=17
         }
 
         override fun onClick(view: View?) {
